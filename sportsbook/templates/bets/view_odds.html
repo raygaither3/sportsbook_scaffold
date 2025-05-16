@@ -1,0 +1,85 @@
+{% from 'macros/odds.html' import moneyline %}
+{% extends "base.html" %}
+{% block title %}{{ label }} Odds{% endblock %}
+
+{% block body %}
+<div class="container mt-5 text-white">
+  <h2 class="mb-4 text-center">{{ label }}: Upcoming Games</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if events %}
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Match</th>
+            <th>Home</th>
+            <th>Away</th>
+            <th>Odds</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for event in events %}
+            {% if event.home_team and event.away_team and event.bookmakers %}
+              {% set market = event.bookmakers[0].markets[0] %}
+              {% set outcomes = market.outcomes %}
+              {% set home = outcomes | selectattr("name", "equalto", event.home_team) | list | first %}
+              {% set away = outcomes | selectattr("name", "equalto", event.away_team) | list | first %}
+
+              {% if home and away %}
+              <tr>
+                <td>{{ event.home_team }} vs {{ event.away_team }}</td>
+                <td>{{ moneyline(home.price) }} <small class="text-muted">({{ home.price }})</small></td>
+                <td>{{ moneyline(away.price) }} <small class="text-muted">({{ away.price }})</small></td>
+                <td>
+                  <strong>Home:</strong> {{ home.price }}<br>
+                  <strong>Away:</strong> {{ away.price }}
+                </td>
+                <td>
+                  <form method="POST" action="{{ url_for('bets.confirm_bet') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="home_team" value="{{ home.name }}">
+                    <input type="hidden" name="away_team" value="{{ away.name }}">
+                    <input type="hidden" name="odds_home" value="{{ home.price }}">
+                    <input type="hidden" name="odds_away" value="{{ away.price }}">
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="selection" id="home_{{ loop.index }}" value="home" required>
+                      <label class="form-check-label" for="home_{{ loop.index }}">
+                        {{ home.name }}
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="radio" name="selection" id="away_{{ loop.index }}" value="away">
+                      <label class="form-check-label" for="away_{{ loop.index }}">
+                        {{ away.name }}
+                      </label>
+                    </div>
+
+                    <input type="number" name="amount" class="form-control form-control-sm mb-2" placeholder="Amount" min="1" required>
+                    <button class="btn btn-sm btn-primary w-100">Place Bet</button>
+                  </form>
+                </td>
+              </tr>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-center">No odds available at the moment.</p>
+  {% endif %}
+</div>
+{% endblock %}

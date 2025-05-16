@@ -1,0 +1,18 @@
+<div class="sidebar">
+    <a href="{{ url_for('bets.mma_betting') }}"
+       class="{% if 'mma' in request.path %}active{% endif %}">
+      <i class="fas fa-user-ninja me-2 text-danger"></i>MMA / UFC
+    </a>
+    <a href="{{ url_for('bets.nba_betting') }}"
+       class="{% if 'nba' in request.path %}active{% endif %}">
+      <i class="fas fa-basketball-ball me-2 text-warning"></i>NBA
+    </a>
+    <a href="{{ url_for('bets.nfl_betting') }}"
+       class="{% if 'nfl' in request.path %}active{% endif %}">
+      <i class="fas fa-football-ball me-2 text-success"></i>NFL
+    </a>
+    <a href="{{ url_for('bets.mlb_betting') }}"
+       class="{% if 'mlb' in request.path %}active{% endif %}">
+      <i class="fas fa-baseball-ball me-2 text-info"></i>MLB
+    </a>
+  </div>

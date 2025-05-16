@@ -1,0 +1,43 @@
+{% from 'macros/odds.html' import moneyline %}
+{% extends "base.html" %}
+{% block title %}Confirm Your Bet{% endblock %}
+{% block body %}
+<div class="container mt-5 text-white">
+  <h2 class="mb-4">Confirm Your Bet</h2>
+
+  <div class="card bg-dark text-white mb-4">
+    <div class="card-body">
+      {% if game %}
+        <h5 class="card-title">{{ game.home_team.name }} vs {{ game.away_team.name }}</h5>
+      {% else %}
+        <h5 class="card-title">{{ team_name }}</h5>
+      {% endif %}
+  
+      <p><strong>Your Pick:</strong> {{ team_name }}</p>
+      <p><strong>Odds:</strong> {{ moneyline(odds) }} <span class="text-muted ms-2">({{ odds }})</span></p>
+      <p><strong>Wager:</strong> ${{ '%.2f' % amount }}</p>
+      <p><strong>Potential Payout:</strong> ${{ '%.2f' % payout }}</p>
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('bets.submit_live_bet') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  
+    <input type="hidden" name="home_team" value="{{ home_team }}">
+    <input type="hidden" name="away_team" value="{{ away_team }}">
+    <input type="hidden" name="sport" value="{{ sport }}">
+    <input type="hidden" name="market_type" value="{{ market_type }}">
+  
+    <!-- ✅ This needs the FULL raw selection string -->
+    <input type="hidden" name="selection" value="{{ selection }}|{{ odds }}|{{ market_type }}">
+  
+    <input type="hidden" name="amount" value="{{ amount }}">
+  
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-success btn-lg">Confirm & Place Bet</button>
+    </div>
+  </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

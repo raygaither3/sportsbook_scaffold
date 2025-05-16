@@ -1,0 +1,29 @@
+{% from 'macros/odds.html' import moneyline %}
+{% extends "base.html" %}
+{% block title %}Confirm Your Bet{% endblock %}
+
+{% block body %}
+<div class="container mt-5 text-white">
+  <h2 class="mb-4">Confirm Your Bet</h2>
+
+  <div class="card bg-dark text-white mb-4">
+    <div class="card-body">
+      <h5>{{ home_team }} vs {{ away_team }}</h5>
+      <p><strong>Your Pick:</strong> {{ team_name }} {{ moneyline(odds) }}</p>
+      <p><strong>Amount:</strong> ${{ '%.2f' % amount }}</p>
+      <p><strong>Potential Payout:</strong> ${{ '%.2f' % (amount * odds) }}</p>
+
+      <form method="POST" action="{{ url_for('bets.submit_live_bet') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="home_team" value="{{ home_team }}">
+        <input type="hidden" name="away_team" value="{{ away_team }}">
+        <input type="hidden" name="selection" value="{{ selection }}">
+        <input type="hidden" name="odds" value="{{ odds }}">
+        <input type="hidden" name="amount" value="{{ amount }}">
+        <button type="submit" class="btn btn-success">Place Bet</button>
+        <a href="{{ url_for('bets.live_betting') }}" class="btn btn-secondary ms-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% from 'macros/odds.html' import moneyline %}
+{% extends "base.html" %}
+{% block title %}Live Odds{% endblock %}
+
+{% block body %}
+<div class="container mt-5 text-white">
+  <h2 class="mb-4">Live Odds</h2>
+
+  {% if events %}
+    {% for event in events %}
+      {% set book = event.bookmakers[0] if event.bookmakers else None %}
+      {% if book and book.markets and book.markets[0].outcomes|length >= 2 %}
+        <div class="card bg-dark text-white mb-3">
+          <div class="card-body">
+            <h5>{{ event.home_team }} vs {{ event.away_team }}</h5>
+            <p class="text-muted">{{ event.sport_title }} — {{ event.commence_time[:10] }} @ {{ event.commence_time[11:16] }} UTC</p>
+            <p><strong>Bookmaker:</strong> {{ book.title }}</p>
+            <ul class="list-unstyled">
+              {% for outcome in book.markets[0].outcomes %}
+                <li>
+                  {{ outcome.name }}: {{ moneyline(outcome.price) }}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <p>No odds available at the moment.</p>
+  {% endif %}
+</div>
+{% endblock %}

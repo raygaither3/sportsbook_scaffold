@@ -1,0 +1,89 @@
+{% from 'macros/odds.html' import moneyline %}
+{% extends "base.html" %}
+{% block title %}Manage Bets{% endblock %}
+
+{% block body %}
+<div class="container mt-5 text-white">
+  <h2 class="mb-4">Admin: Manage All Bets</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if bets %}
+    <table class="table table-dark table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Match</th>
+          <th>Your Pick</th>
+          <th>Amount</th>
+          <th>Odds</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for bet in bets %}
+          <tr>
+            <td>{{ bet.id }}</td>
+            <td>{{ bet.user.username }}</td>
+
+            {% if bet.home_team and bet.away_team %}
+              <!-- Live/API-based bet -->
+              <td>{{ bet.home_team }} vs {{ bet.away_team }}</td>
+              <td>{{ bet.home_team if bet.selection == 'home' else bet.away_team }}</td>
+
+            {% elif bet.selections and bet.selections[0].market and bet.selections[0].market.game %}
+              {% set sel = bet.selections[0] %}
+              {% set g = sel.market.game %}
+              <td>{{ g.home_team.name }} vs {{ g.away_team.name }}</td>
+              <td>{{ g.home_team.name if sel.selection == 'home' else g.away_team.name }}</td>
+
+            {% else %}
+              <td colspan="2"><em>Unknown Format</em></td>
+            {% endif %}
+
+            <td>${{ "%.2f"|format(bet.amount) }}</td>
+
+            <td>
+              {% if bet.odds %}
+                {{ moneyline(bet.odds) }} <span class="text-muted ms-1">({{ bet.odds }})</span>
+              {% elif bet.selections %}
+                {{ moneyline(bet.selections[0].odds_at_bet_time) }} <span class="text-muted ms-1">({{ bet.selections[0].odds_at_bet_time }})</span>
+              {% else %}
+                <em>N/A</em>
+              {% endif %}
+            </td>
+
+            <td>
+              <span class="badge bg-{{ {
+                'won': 'success',
+                'lost': 'danger',
+                'pending': 'secondary',
+                'void': 'warning'
+              }[bet.status] }}">{{ bet.status|capitalize }}</span>
+            </td>
+
+            <td>
+              <a href="{{ url_for('admin.update_bet_status', bet_id=bet.id, status='won') }}" class="btn btn-sm btn-success">Won</a>
+              <a href="{{ url_for('admin.update_bet_status', bet_id=bet.id, status='lost') }}" class="btn btn-sm btn-danger">Lost</a>
+              <a href="{{ url_for('admin.update_bet_status', bet_id=bet.id, status='void') }}" class="btn btn-sm btn-warning">Void</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No bets to manage.</p>
+  {% endif %}
+</div>
+{% endblock %}

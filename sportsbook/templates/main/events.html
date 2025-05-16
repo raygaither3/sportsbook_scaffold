@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Browse Events{% endblock %}
+
+{% block body %}
+<div class="container mt-5 text-white">
+  <h2 class="mb-4 text-center">Today's Available Sports</h2>
+
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for key, label in sport_labels.items() %}
+    <div class="col">
+      <div class="card bg-dark text-white h-100 border-light text-center p-3">
+        <div class="card-body">
+          <i class="fas fa-play-circle fa-2x text-danger mb-2"></i>
+          <h5 class="card-title">{{ label }}</h5>
+          <a href="{{ url_for('bets.sport_odds', sport_key=key) }}" class="btn btn-outline-danger mt-3">View Odds</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

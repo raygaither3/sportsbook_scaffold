@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block body %}
+
+<!-- Hero Section -->
+<section class="py-5 text-white text-center" style="background: linear-gradient(to right, #1c1c1c, #111);">
+  <div class="container">
+    <h1 class="display-3 fw-bold">Welcome to <span class="text-danger">Swing Bets</span></h1>
+    <p class="lead mt-3">Bet smart. Bet bold. Make every game matter.</p>
+    <div class="mt-4">
+      {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-danger btn-lg px-5 me-3">Sign Up</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-5">Login</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Feature Highlights -->
+<section class="bg-dark text-white py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <a href="{{ url_for('user.my_bets') }}" class="text-decoration-none">
+          <div class="card bg-secondary h-100 border-0 text-center p-4 hover-shadow">
+            <i class="fas fa-trophy fa-3x text-danger mb-3"></i>
+            <h5 class="fw-bold">Track Your Bets</h5>
+            <p>View live statuses, outcomes, and detailed bet histories — all in your dashboard.</p>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{{ url_for('user.dashboard') }}" class="text-decoration-none">
+          <div class="card bg-secondary h-100 border-0 text-center p-4 hover-shadow">
+            <i class="fas fa-wallet fa-3x text-danger mb-3"></i>
+            <h5 class="fw-bold">Manage Your Wallet</h5>
+            <p>Deposit, withdraw, and track your balance securely in real time with transaction logs.</p>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{{ url_for('bets.live_betting') }}" class="text-decoration-none">
+          <div class="card bg-secondary h-100 border-0 text-center p-4 hover-shadow">
+            <i class="fas fa-chart-line fa-3x text-danger mb-3"></i>
+            <h5 class="fw-bold">Live Odds Feed</h5>
+            <p>Access up-to-the-minute odds across sports — powered by real API data feeds.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Sports -->
+<section class="bg-black text-white py-5">
+  <div class="container">
+    <h3 class="text-center mb-4">Featured Sports</h3>
+    <div class="row row-cols-2 row-cols-md-4 g-4 text-center">
+
+      <div class="col">
+        <a href="{{ url_for('bets.live_betting') }}" class="text-decoration-none text-white">
+          <div class="card bg-dark border-light h-100 hover-shadow">
+            <div class="card-body">
+              <i class="fas fa-user-ninja fa-2x text-danger mb-2"></i>
+              <h6 class="fw-bold">UFC / MMA</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col">
+        <a href="{{ url_for('bets.nba_betting') }}" class="text-decoration-none text-white disabled-link">
+          <div class="card bg-dark border-light h-100 hover-shadow">
+            <div class="card-body">
+              <i class="fas fa-basketball-ball fa-2x text-warning mb-2"></i>
+              <h6 class="fw-bold">NBA</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col">
+        <a href="{{ url_for('bets.nfl_betting') }}" class="text-decoration-none text-white disabled-link">
+          <div class="card bg-dark border-light h-100 hover-shadow">
+            <div class="card-body">
+              <i class="fas fa-football-ball fa-2x text-success mb-2"></i>
+              <h6 class="fw-bold">NFL</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col">
+        <a href="{{ url_for('bets.mlb_betting') }}" class="text-decoration-none text-white disabled-link">
+          <div class="card bg-dark border-light h-100 hover-shadow">
+            <div class="card-body">
+              <i class="fas fa-baseball-ball fa-2x text-info mb-2"></i>
+              <h6 class="fw-bold">MLB</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="bg-black text-white py-5">
+  <div class="container">
+    <h3 class="text-center mb-4">Upcoming Events</h3>
+
+    <!-- Filter Bar -->
+    <div class="d-flex justify-content-center mb-4 flex-wrap">
+      {% for code, name in sport_names.items() %}
+        <a href="{{ url_for('main.home', sport=code) }}"
+           class="btn btn-sm me-2 mb-2 {{ 'btn-danger' if selected_sport == code else 'btn-outline-light' }}">
+          {{ name }}
+        </a>
+      {% endfor %}
+      {% if selected_sport %}
+        <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-secondary mb-2">Clear Filter</a>
+      {% endif %}
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      {% for ev in upcoming_events[:8] %}
+      <div class="col">
+        <div class="card bg-dark text-white border-light h-100">
+          <div class="card-body text-center">
+            <p>
+              <span class="badge bg-danger">{{ ev.home_team }}</span>
+              vs
+              <span class="badge bg-secondary">{{ ev.away_team }}</span>
+              <br>
+              <small class="text-muted">
+                {{ ev.start_time | datetimeformat }} — {{ ev.sport.replace('_', ' ')|title }}
+              </small>
+            </p>
+            <a href="{{ url_for('bets.live_betting_api', home_team=ev.home_team, away_team=ev.away_team, sport=ev.sport) }}"
+               class="btn btn-outline-danger btn-sm mt-2">View Odds</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}

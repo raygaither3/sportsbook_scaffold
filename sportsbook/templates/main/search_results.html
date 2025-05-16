@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Search Results{% endblock %}
+
+{% block body %}
+  <h2 class="mb-4">Search Results for “{{ query }}”</h2>
+    <p class="text-muted">Showing {{ events|length }} events and {{ bets|length }} bets.</p>
+    
+
+    {% if events %}
+        <h5>Matching Games</h5>
+        <ul class="list-group mb-4">
+        {% for ev in events %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ ev.home_team.name }} vs {{ ev.away_team.name }}
+            <span class="text-muted">{{ ev.start_time.strftime('%b %d, %Y') }}</span>
+            <a href="{{ url_for('bets.event_detail', event_id=bet.game_id) }}"
+                class="btn btn-sm btn-outline-primary ms-3">View</a>
+            </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+
+{% if api_matches %}
+  <h5>Live API Matches</h5>
+  <ul class="list-group mb-4">
+    {% for ev in api_matches %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ ev.home_team }} vs {{ ev.away_team }}
+        <span class="text-muted">
+          {{ ev.start_time | datetimeformat }}
+        </span>
+        <span class="badge bg-secondary">{{ ev.sport.replace('_', ' ') | title }}</span>
+        <a href="{{ url_for('bets.live_betting_api', home_team=ev.home_team, away_team=ev.away_team, sport=ev.sport) }}"
+            class="btn btn-sm btn-outline-primary ms-3">Live Bet</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+  {% if bets %}
+    <h5>Your Bets</h5>
+    <ul class="list-group mb-4">
+      {% for bet in bets %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ bet.home_team }} vs {{ bet.away_team }} — {{ bet.selection|capitalize }}
+          <span class="text-muted">
+            {{ bet.created_at.strftime('%b %d, %Y – %I:%M %p') }}
+          </span>
+          <a href="{{ url_for('bets.live_betting', game_id=ev.id) }}"
+            class="btn btn-sm btn-outline-primary ms-3">View</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if not events and not bets %}
+    <p class="text-muted">No results found. Try a different keyword?</p>
+  {% endif %}
+{% endblock %}

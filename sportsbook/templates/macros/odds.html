@@ -1,0 +1,15 @@
+{% macro moneyline(decimal) %}
+  {% if decimal is not none %}
+    {% if decimal == 1.0 %}
+      <span class="badge bg-secondary">+100</span>
+    {% elif decimal >= 2 %}
+      <span class="badge bg-success">+{{ ((decimal - 1) * 100)|round|int }}</span>
+    {% elif decimal > 1 %}
+      <span class="badge bg-danger">-{{ (100 / (decimal - 1))|round|int }}</span>
+    {% else %}
+      <span class="badge bg-dark">N/A</span>
+    {% endif %}
+  {% else %}
+    <span class="text-muted">N/A</span>
+  {% endif %}
+{% endmacro %}
